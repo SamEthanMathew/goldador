@@ -42,7 +42,7 @@ variable "vault_token" {
 }
 
 variable "team_oidc_clients" {
-  description = "Keycloak team OIDC clients keyed by client_id"
+  description = "Keycloak team OIDC client non-sensitive information keyed by client_id"
   type = map(object({
     slug = string
     env  = string
@@ -50,8 +50,14 @@ variable "team_oidc_clients" {
 }
 
 variable "team_oidc_client_secrets" {
-  description = "Keycloak team OIDC client secrets keyed by client_id"
-  type        = map(string)
-  sensitive   = true
+  description = "Keycloak team OIDC client sensitive secrets keyed by client_id"
+  type = map(object({
+    slug          = string
+    env           = string
+    client_secret = string
+    website       = string
+    server        = string
+  }))
+  sensitive = true
 }
 
