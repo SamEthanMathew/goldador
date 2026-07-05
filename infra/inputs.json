@@ -97,8 +97,8 @@
         "ScottyStack"
       ],
       "create_oidc_clients": true,
-      "website": "stacks.scottylabs.org",
-      "server": "api.stacks.scottylabs.org"
+      "website": "stack.scottylabs.org",
+      "server": "api.stack.scottylabs.org"
     },
     "cmuresearch": {
       "name": "CMU Research",
