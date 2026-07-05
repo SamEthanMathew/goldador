@@ -1,15 +1,19 @@
 {
   "github_usernames": {
     "admins": [
-      "Yuxiang-Huang"
+      "Yuxiang-Huang",
+      "dsnarne",
+      "hanabenko",
+      "alanpham06"
     ],
-    "non_admins": [
-      "dsnarne"
-    ]
+    "non_admins": []
   },
   "andrew_ids": {
     "admins": [
-      "yh4"
+      "yh4",
+      "dnarne",
+      "hbenko",
+      "alanp"
     ],
     "non_admins": []
   },
@@ -44,7 +48,38 @@
       "members": {
         "github_usernames": [
           "Yuxiang-Huang",
-          "dsnarne"
+          "dsnarne",
+          "hanabenko",
+          "alanpham06"
+        ],
+        "andrew_ids": [
+          "yh4",
+          "dnarne",
+          "hbenko",
+          "alanp"
+        ]
+      },
+      "admins": {
+        "github_usernames": [
+          "Yuxiang-Huang",
+          "hanabenko"
+        ],
+        "andrew_ids": [
+          "yh4",
+          "hbenko"
+        ]
+      },
+      "repos": [
+        "wiki"
+      ],
+      "create_oidc_clients": false
+    },
+    "scottystack": {
+      "name": "ScottyStack",
+      "description": "Responsible for maintenance of ScottyLabs Full Stack Template",
+      "members": {
+        "github_usernames": [
+          "Yuxiang-Huang"
         ],
         "andrew_ids": [
           "yh4"
@@ -59,9 +94,11 @@
         ]
       },
       "repos": [
-        "wiki"
+        "ScottyStack"
       ],
-      "create_oidc_clients": false
+      "create_oidc_clients": true,
+      "website": "https://stacks.scottylabs.org",
+      "server": "https://api.stacks.scottylabs.org"
     },
     "cmuresearch": {
       "name": "CMU Research",
