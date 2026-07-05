@@ -33,7 +33,6 @@ jobs:
               - 'meta/synchronizers/src/__init__.py'
               - 'meta/synchronizers/src/_constants.py'
               - 'meta/synchronizers/src/abstract.py'
-              - '.github/workflows/sync.yml'
             codeowners:
               - 'meta/synchronizers/codeowners.py'
             slack:
@@ -137,8 +136,7 @@ jobs:
     needs: detect-changes
     name: Apply Infrastructure
     runs-on: ubuntu-latest
-    if: needs.detect-changes.outputs.shared == 'true' ||
-      needs.detect-changes.outputs.iac == 'true'
+    if: needs.detect-changes.outputs.iac == 'true'
 
     env:
       # --- S3 backend credentials ---
