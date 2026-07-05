@@ -1,4 +1,4 @@
-name = "ScottyStacks"
+name = "ScottyStack"
 description = "Responsible for maintenance of ScottyLabs Full Stack Template"
 website = "https://stacks.scottylabs.org"
 server = "https://api.stacks.scottylabs.org"
