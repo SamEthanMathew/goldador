@@ -97,8 +97,8 @@
         "ScottyStack"
       ],
       "create_oidc_clients": true,
-      "website": "https://stacks.scottylabs.org",
-      "server": "https://api.stacks.scottylabs.org"
+      "website": "stacks.scottylabs.org",
+      "server": "api.stacks.scottylabs.org"
     },
     "cmuresearch": {
       "name": "CMU Research",
@@ -135,8 +135,8 @@
       },
       "repos": [],
       "create_oidc_clients": true,
-      "website": "https://cmuservice.shop",
-      "server": "https://cmuservice.shop"
+      "website": "cmuservice.shop",
+      "server": "cmuservice.shop"
     },
     "collegecart": {
       "name": "CollegeCart",
@@ -161,8 +161,8 @@
       },
       "repos": [],
       "create_oidc_clients": true,
-      "website": "https://collegecart.org",
-      "server": "https://collegecart.org"
+      "website": "collegecart.org",
+      "server": "collegecart.org"
     },
     "cmustudy": {
       "name": "CMU Study",
@@ -181,8 +181,8 @@
       },
       "repos": [],
       "create_oidc_clients": true,
-      "website": "https://study.scottylabs.org",
-      "server": "https://study.scottylabs.org"
+      "website": "study.scottylabs.org",
+      "server": "study.scottylabs.org"
     }
   }
 }
