@@ -33,6 +33,7 @@ jobs:
               - 'meta/synchronizers/src/__init__.py'
               - 'meta/synchronizers/src/_constants.py'
               - 'meta/synchronizers/src/abstract.py'
+              - '.github/workflows/sync.yml'
             codeowners:
               - 'meta/synchronizers/codeowners.py'
             slack:
