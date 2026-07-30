@@ -3,6 +3,9 @@
 All Labrador members are added to the Google Drive as contributors and
 Labrador leadership are added to the Google Drive as content managers.
 
+Leadership members are also added to the Leadership Google Drive folder as
+content managers.
+
 We make sure that each member has AT LEAST the permission they should have but
 we don't demote them to a lower permission if they have a higher permission.
 This is because some Labrador leadership are Content Managers while others are Managers,
@@ -49,6 +52,7 @@ class GoogleDriveSynchronizer(AbstractSynchronizer):
             "GOOGLE_CLIENT_EMAIL",
             "GOOGLE_PRIVATE_KEY",
             "SCOTTYLABS_GOOGLE_DRIVE_ID",
+            "SCOTTYLABS_LEADERSHIP_FOLDER_ID",
         ]:
             if env_var not in os.environ:
                 msg = f"Environment variable {env_var} is not set"
@@ -56,13 +60,14 @@ class GoogleDriveSynchronizer(AbstractSynchronizer):
                 raise RuntimeError(msg)
 
         # Set the Google Drive ID
-        self.google_drive_id = os.getenv("SCOTTYLABS_GOOGLE_DRIVE_ID")
+        self.google_drive_id = os.environ["SCOTTYLABS_GOOGLE_DRIVE_ID"]
+        self.leadership_folder_id = os.environ["SCOTTYLABS_LEADERSHIP_FOLDER_ID"]
 
         # Initialize the Google credentials
         creds = service_account.Credentials.from_service_account_info(  # type: ignore[no-untyped-call]
             info={
-                "private_key": os.getenv("GOOGLE_PRIVATE_KEY"),
-                "client_email": os.getenv("GOOGLE_CLIENT_EMAIL"),
+                "private_key": os.environ["GOOGLE_PRIVATE_KEY"],
+                "client_email": os.environ["GOOGLE_CLIENT_EMAIL"],
                 "token_uri": self.GOOGLE_TOKEN_URI,
             },
         )
@@ -73,25 +78,51 @@ class GoogleDriveSynchronizer(AbstractSynchronizer):
     @override
     def sync(self) -> None:
         print_section("Google Drive")
-        permissions = self.get_all_permissions(self.service)
+        self.sync_shared_drive()
+        self.sync_leadership_folder()
+
+    def sync_shared_drive(self) -> None:
+        """Grant baseline access to the ScottyLabs shared drive."""
+        permissions = self.get_all_permissions(self.google_drive_id)
         new_member_email_addresses = self.get_new_member_email_addresses(permissions)
         new_admin_email_addresses = self.get_new_admin_email_addresses(permissions)
         new_non_admin_email_addresses = set(new_member_email_addresses) - set(
             new_admin_email_addresses,
         )
-        self.add_permissions(list(new_non_admin_email_addresses), "writer")
-        self.add_permissions(new_admin_email_addresses, "fileOrganizer")
+        self.add_permissions(
+            list(new_non_admin_email_addresses),
+            "writer",
+            self.google_drive_id,
+            "ScottyLabs Google Drive",
+        )
+        self.add_permissions(
+            new_admin_email_addresses,
+            "fileOrganizer",
+            self.google_drive_id,
+            "ScottyLabs Google Drive",
+        )
 
-    def get_all_permissions(self, service: build) -> dict[str, str]:
-        """Return a email to role mapping for the ScottyLabs Google Drive."""
+    def sync_leadership_folder(self) -> None:
+        """Grant leadership members content manager access to the Leadership folder."""
+        permissions = self.get_all_permissions(self.leadership_folder_id)
+        new_admin_email_addresses = self.get_new_admin_email_addresses(permissions)
+        self.add_permissions(
+            new_admin_email_addresses,
+            "fileOrganizer",
+            self.leadership_folder_id,
+            "ScottyLabs Leadership Google Drive folder",
+        )
+
+    def get_all_permissions(self, file_id: str) -> dict[str, str]:
+        """Return an email to role mapping for a Google Drive file or folder."""
         permissions = {}
         page_token = None
 
         while True:
             response = (
-                service.permissions()
+                self.service.permissions()
                 .list(
-                    fileId=self.google_drive_id,
+                    fileId=file_id,
                     fields="nextPageToken, permissions(emailAddress,role)",
                     supportsAllDrives=True,
                     pageToken=page_token,
@@ -156,24 +187,35 @@ class GoogleDriveSynchronizer(AbstractSynchronizer):
 
         return new_email_addresses
 
-    def add_permissions(self, email_addresses: list[str], role: DRIVE_ROLE) -> None:
+    def add_permissions(
+        self,
+        email_addresses: list[str],
+        role: DRIVE_ROLE,
+        file_id: str,
+        resource_name: str,
+    ) -> None:
         """Create permissions for the given email addresses with the given role."""
         role_name = self.DRIVE_ROLE_TO_ROLE_NAME[role]
 
         # Log messages
         if len(email_addresses) == 0:
-            self.logger.debug("Detected no new %s.\n", role_name)
+            self.logger.debug("Detected no new %s for %s.\n", role_name, resource_name)
             return
 
-        self.logger.info("Detected %d new %s.\n", len(email_addresses), role_name)
+        self.logger.info(
+            "Detected %d new %s for %s.\n",
+            len(email_addresses),
+            role_name,
+            resource_name,
+        )
 
         # Add permissions
         for email_address in email_addresses:
             with log_operation(
-                f"add/update {email_address} as a ScottyLabs Google Drive {role_name}",
+                f"add/update {email_address} as a {resource_name} {role_name}",
             ):
                 self.service.permissions().create(
-                    fileId=self.google_drive_id,
+                    fileId=file_id,
                     body={"type": "user", "role": role, "emailAddress": email_address},
                     supportsAllDrives=True,
                 ).execute()

@@ -101,6 +101,7 @@ jobs:
       GOOGLE_CLIENT_EMAIL: ${{ secrets.GOOGLE_CLIENT_EMAIL }}
       GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
       SCOTTYLABS_GOOGLE_DRIVE_ID: ${{ secrets.SCOTTYLABS_GOOGLE_DRIVE_ID }}
+      SCOTTYLABS_LEADERSHIP_FOLDER_ID: ${{ secrets.SCOTTYLABS_LEADERSHIP_FOLDER_ID }}
 
     steps:
       - name: Checkout repository

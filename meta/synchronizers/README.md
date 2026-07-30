@@ -75,6 +75,7 @@ Drive.
 
 - Labrador members receive contributor access.
 - Leadership leads receive at least content manager access.
+- Leadership members receive content manager access to the Leadership folder.
 - Existing higher Google Drive permissions are preserved.
 
 Required environment:
@@ -82,6 +83,7 @@ Required environment:
 - `GOOGLE_CLIENT_EMAIL`
 - `GOOGLE_PRIVATE_KEY`
 - `SCOTTYLABS_GOOGLE_DRIVE_ID`
+- `SCOTTYLABS_LEADERSHIP_FOLDER_ID`
 
 ## CI Behavior
 
