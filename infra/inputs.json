@@ -5,7 +5,8 @@
       "dsnarne",
       "hanabenko",
       "alanpham06",
-      "laasyaaki"
+      "laasyaaki",
+      "jagong-cmu"
     ],
     "non_admins": []
   },
@@ -15,7 +16,8 @@
       "dnarne",
       "hbenko",
       "alanp",
-      "laki"
+      "laki",
+      "jagong"
     ],
     "non_admins": []
   },
@@ -53,14 +55,16 @@
           "dsnarne",
           "hanabenko",
           "alanpham06",
-          "laasyaaki"
+          "laasyaaki",
+          "jagong-cmu"
         ],
         "andrew_ids": [
           "yh4",
           "dnarne",
           "hbenko",
           "alanp",
-          "laki"
+          "laki",
+          "jagong"
         ]
       },
       "admins": {
