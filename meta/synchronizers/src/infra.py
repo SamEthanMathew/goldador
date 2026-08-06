@@ -55,7 +55,7 @@ LEGACY_DATA = {
         "name": "CollegeCart",
         "description": "The CollegeCart team.",
         "members": {
-            "andrew_ids": ["yingyiw", "nayonk", "rushabhj", "rkurihar", "mbatkhuu"],
+            "andrew_ids": ["yingyiw", "nayonk", "rushabhj", "mbatkhuu"],
             "github_usernames": [],
         },
         "admins": {
