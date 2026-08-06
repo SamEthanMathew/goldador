@@ -32,7 +32,8 @@ resource "keycloak_openid_group_membership_protocol_mapper" "openbao_groups" {
   realm_id  = keycloak_realm.labrador.id
   client_id = keycloak_openid_client.openbao.id
 
-  name       = "groups"
-  claim_name = "groups"
-  full_path  = false
+  name                       = "groups"
+  claim_name                 = "groups"
+  full_path                  = false
+  add_to_token_introspection = true
 }

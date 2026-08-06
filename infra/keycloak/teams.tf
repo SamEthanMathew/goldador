@@ -99,12 +99,13 @@ resource "keycloak_openid_client" "team_oidc_clients" {
 
 # Include a `groups` claim in the token that includes the groups the user is a member of
 resource "keycloak_openid_group_membership_protocol_mapper" "group_membership_mapper" {
-  realm_id   = keycloak_realm.labrador.id
-  for_each   = keycloak_openid_client.team_oidc_clients
-  client_id  = each.value.id
-  name       = "group-membership-mapper"
-  claim_name = "groups"
-  full_path  = false
+  realm_id                   = keycloak_realm.labrador.id
+  for_each                   = keycloak_openid_client.team_oidc_clients
+  client_id                  = each.value.id
+  name                       = "group-membership-mapper"
+  claim_name                 = "groups"
+  full_path                  = false
+  add_to_token_introspection = true
 }
 
 # Include the current client in the token's `aud` audience claim
