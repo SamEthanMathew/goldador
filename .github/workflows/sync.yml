@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: sync-main
+  cancel-in-progress: false
+
 jobs:
   detect-changes:
     name: Detect Changes
@@ -114,11 +118,15 @@ jobs:
         run: uv run --frozen --no-dev --group google-synchronizer sync-google-drive
 
   sync-infra:
-    needs: detect-changes
+    # We need to wait for the codeowners sync to complete first to avoid conflicts
+    # since both jobs modify the GitHub repository.
+    needs: [detect-changes, sync-codeowners]
     name: Sync Infra
     runs-on: ubuntu-latest
-    if: needs.detect-changes.outputs.shared == 'true' ||
-      needs.detect-changes.outputs.infra == 'true'
+    if: |
+      always() &&
+      needs.detect-changes.result == 'success' &&
+      (needs.detect-changes.outputs.shared == 'true' || needs.detect-changes.outputs.infra == 'true')
 
     env:
       SYNC_GITHUB_TOKEN: ${{ secrets.SYNC_GITHUB_TOKEN }}
