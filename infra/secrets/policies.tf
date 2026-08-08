@@ -27,7 +27,7 @@ resource "vault_policy" "team_members_policies" {
         capabilities = ["read", "list"]
     }
 
-    path "${vault_mount.kv.path}/data/${each.key}/generated/local/*" {
+    path "${vault_mount.kv.path}/data/${each.key}/generated/local*" {
         capabilities = ["read", "list"]
     }
   EOT
