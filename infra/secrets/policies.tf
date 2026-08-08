@@ -1,4 +1,5 @@
-# A team member is allowed to read and list secrets in the local file/folder.
+# A team member is allowed to read and list secrets in the local file/folder
+# and generated secrets for local development.
 
 resource "vault_identity_group" "team_members_groups" {
   for_each = var.team_slugs
@@ -25,10 +26,15 @@ resource "vault_policy" "team_members_policies" {
     path "${vault_mount.kv.path}/data/${each.key}/local/*" {
         capabilities = ["read", "list"]
     }
+
+    path "${vault_mount.kv.path}/data/${each.key}/generated/local/*" {
+        capabilities = ["read", "list"]
+    }
   EOT
 }
 
-# A team admin is allowed have all permissions on the team's folder.
+# A team admin is allowed have all permissions on the team's folder, except
+# only read access to the generated secrets.
 
 locals {
   # A map from team slug to its admin group name
@@ -72,6 +78,10 @@ resource "vault_policy" "team_admins_policies" {
 
     path "${vault_mount.kv.path}/metadata/${each.key}/*" {
         capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+    }
+
+    path "${vault_mount.kv.path}/data/${each.key}/generated/*" {
+        capabilities = ["read", "list"]
     }
 
     # OpenBao picks the most specific pattern across all policies, so we need to
