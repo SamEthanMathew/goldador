@@ -14,10 +14,7 @@ from dotenv import load_dotenv
 from pydantic import ValidationError
 
 from meta.logger import get_app_logger
-from meta.validator.src.engine import run_validation
 from meta.validator.src.reporter import Reporter
-from meta.validator.src.rules.members import MemberValidationError
-from meta.validator.src.rules.teams import TeamValidationError
 
 DEFAULT_VALIDATOR_SERVER_URL = "https://validator.goldador.scottylabs.org"
 _VALIDATE_TIMEOUT_SECONDS = 600
@@ -111,9 +108,26 @@ def main() -> None:
     logger = get_app_logger()
 
     try:
-        payload: Mapping[str, object] = (
-            run_validation() if ref is None else validate_ref_via_api(ref)
-        )
+        if ref is None:
+            # Local mode needs validator extras (PyGithub, Keycloak); keep these
+            # imports lazy so ``validate REF`` stays usable with base deps only.
+            from meta.validator.src.engine import (  # noqa: PLC0415
+                run_validation,
+            )
+            from meta.validator.src.rules.members import (  # noqa: PLC0415
+                MemberValidationError,
+            )
+            from meta.validator.src.rules.teams import (  # noqa: PLC0415
+                TeamValidationError,
+            )
+
+            try:
+                payload: Mapping[str, object] = run_validation()
+            except (MemberValidationError, TeamValidationError) as e:
+                logger.critical("%s", e)
+                raise SystemExit(1) from e
+        else:
+            payload = validate_ref_via_api(ref)
 
         validation = payload.get("validation")
         if not isinstance(validation, Mapping):
@@ -142,8 +156,6 @@ def main() -> None:
         ValidatorApiError,
         ValidationError,
         ValueError,
-        MemberValidationError,
-        TeamValidationError,
     ) as e:
         logger.critical("%s", e)
         raise SystemExit(1) from e
