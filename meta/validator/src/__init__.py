@@ -2,22 +2,22 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
-import sys
 from collections.abc import Mapping
 from http import HTTPStatus
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 import requests
 from dotenv import load_dotenv
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 from meta.logger import get_app_logger
+from meta.validator.src.engine import run_validation
 from meta.validator.src.reporter import Reporter
-
-if TYPE_CHECKING:
-    import logging
+from meta.validator.src.rules.members import MemberValidationError
+from meta.validator.src.rules.teams import TeamValidationError
 
 DEFAULT_VALIDATOR_SERVER_URL = "https://validator.goldador.scottylabs.org"
 _VALIDATE_TIMEOUT_SECONDS = 600
@@ -27,17 +27,6 @@ _CONNECT_TIMEOUT_SECONDS = 30
 
 class ValidatorApiError(RuntimeError):
     """Raised when the hosted validator API cannot return a usable response."""
-
-
-class _LoadedSummary(BaseModel):
-    member_files: int
-    team_files: int
-
-
-class _ValidationLogContext(BaseModel):
-    repository: str
-    ref: str
-    loaded: _LoadedSummary
 
 
 def validate_ref_via_api(ref: str) -> Mapping[str, object]:
@@ -98,53 +87,65 @@ def _error_detail(data: bytes) -> str:
 
 
 def main() -> None:
-    """Validate governance TOML through the hosted validator API."""
+    """Validate governance TOML locally or through the hosted validator API.
+
+    With no arguments, validates ``members/`` and ``teams/`` on disk. With a
+    Git ref argument, posts to the hosted validator API.
+    """
+    parser = argparse.ArgumentParser(
+        prog="validate",
+        description=(
+            "Validate governance TOML locally (no REF) or via the hosted "
+            "validator API (with REF)."
+        ),
+    )
+    parser.add_argument(
+        "ref",
+        nargs="?",
+        help="Git ref to validate via the hosted API; omit to validate local disk",
+    )
+    args = parser.parse_args()
+    ref: str | None = args.ref
+
     load_dotenv()
     logger = get_app_logger()
-    ref = _cli_ref(sys.argv)
 
     try:
-        payload = validate_ref_via_api(ref)
-        validation = _validation_from_payload(payload)
+        payload: Mapping[str, object] = (
+            run_validation() if ref is None else validate_ref_via_api(ref)
+        )
+
+        validation = payload.get("validation")
+        if not isinstance(validation, Mapping):
+            logger.critical(
+                "Validator API response is missing object 'validation'",
+            )
+            raise SystemExit(1)
+
         reporter = Reporter.from_result(validation)
-        _log_validation_context(logger, payload)
-    except (TypeError, ValidatorApiError, ValidationError, ValueError) as e:
+        loaded = payload.get("loaded")
+        if not isinstance(loaded, Mapping):
+            logger.critical("Validation response is missing object 'loaded'")
+            raise SystemExit(1)
+        if ref is None:
+            target = "local disk"
+        else:
+            target = f"{payload['repository']} @ {payload['ref']}"
+        logger.info(
+            "Validating %s (%s member files, %s team files)",
+            target,
+            loaded.get("member_files"),
+            loaded.get("team_files"),
+        )
+    except (
+        TypeError,
+        ValidatorApiError,
+        ValidationError,
+        ValueError,
+        MemberValidationError,
+        TeamValidationError,
+    ) as e:
         logger.critical("%s", e)
         raise SystemExit(1) from e
 
     reporter.emit()
-
-
-def _cli_ref(argv: list[str]) -> str:
-    """Parse the required Git ref argument from ``argv``."""
-    # ``argv`` layout: script name, required Git ref.
-    expected_argc = 2
-    argc = len(argv)
-    if argc == expected_argc:
-        return argv[1]
-    prog = argv[0] if argv else "validate"
-    msg = f"usage: {prog} REF"
-    raise SystemExit(msg)
-
-
-def _validation_from_payload(payload: Mapping[str, object]) -> Mapping[str, object]:
-    validation = payload.get("validation")
-    if not isinstance(validation, Mapping):
-        msg = "Validator API response is missing object 'validation'"
-        raise TypeError(msg)
-    return validation
-
-
-def _log_validation_context(
-    logger: logging.Logger,
-    payload: Mapping[str, object],
-) -> None:
-    context = _ValidationLogContext.model_validate(payload)
-
-    logger.info(
-        "Validating %s @ %s (%s member files, %s team files)",
-        context.repository,
-        context.ref,
-        context.loaded.member_files,
-        context.loaded.team_files,
-    )

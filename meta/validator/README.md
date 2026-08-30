@@ -9,6 +9,9 @@ Schema formatting checks are handled separately by Taplo and EditorConfig.
 ## Entrypoints
 
 ```zsh
+# Validate local members/ and teams/ on disk (requires validator deps + credentials).
+uv run --group validator validate
+
 # Validate a branch, tag, or commit SHA through the hosted validator API.
 uv run validate REF
 
@@ -16,7 +19,13 @@ uv run validate REF
 uv run --group validator validator-server
 ```
 
-The CLI posts to the hosted API at `https://validator.goldador.scottylabs.org` by default.
+The CLI with no ref runs the same loaders and rules as the server against
+``members/*.toml`` and ``teams/*.toml`` in the current working directory. Local
+mode requires the ``validator`` dependency group and the same credentials as
+remote validation (see below).
+
+With a ref, the CLI posts to the hosted API at
+`https://validator.goldador.scottylabs.org` by default.
 Set `VALIDATOR_SERVER_URL` to point the CLI at another validator server. The API
 exposes:
 
@@ -25,7 +34,8 @@ exposes:
 
 ## Required Environment
 
-Remote validation requires credentials for the external services it checks:
+Local and remote validation require credentials for the external services they
+check:
 
 - `SYNC_GITHUB_TOKEN` for GitHub API calls.
 - `KEYCLOAK_SERVER_URL`, `KEYCLOAK_PASSWORD`, `KEYCLOAK_REALM`,
