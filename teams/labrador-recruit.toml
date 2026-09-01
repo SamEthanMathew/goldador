@@ -1,0 +1,18 @@
+name = "Labrador Recruit"
+description = "Internal recruitment review platform for ScottyLabs leadership. Human review workflow over committee applications - no AI applicant evaluation."
+website = "recruit.scottylabs.org"
+server = "api.recruit.scottylabs.org"
+
+[[repos]]
+name = "labrador-recruit"
+description = "Internal recruitment review platform for ScottyLabs leadership."
+
+[[membership]]
+timeframe = "2026-2027"
+leads = ["SamEthanMathew", "Hef50"]
+
+[[membership.members]]
+github-username = "SamEthanMathew"
+
+[[membership.members]]
+github-username = "Hef50"
