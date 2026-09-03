@@ -9,10 +9,38 @@ description = "Internal recruitment review platform for ScottyLabs leadership."
 
 [[membership]]
 timeframe = "2026-2027"
-leads = ["SamEthanMathew", "Hef50"]
+leads = ["Yuxiang-Huang", "hanabenko"]
 
 [[membership.members]]
-github-username = "SamEthanMathew"
+github-username = "Yuxiang-Huang"
+
+[[membership.members]]
+github-username = "hanabenko"
+
+[[membership.members]]
+github-username = "dsnarne"
+title = "Reviewer"
+
+[[membership.members]]
+github-username = "alanpham06"
+title = "Reviewer"
+
+[[membership.members]]
+github-username = "laasyaaki"
+title = "Reviewer"
+
+[[membership.members]]
+github-username = "jagong-cmu"
+title = "Reviewer"
+
+[[membership.members]]
+github-username = "christinamli"
+title = "Reviewer"
 
 [[membership.members]]
 github-username = "Hef50"
+title = "Reviewer"
+
+[[membership.members]]
+github-username = "SamEthanMathew"
+title = "Reviewer"
